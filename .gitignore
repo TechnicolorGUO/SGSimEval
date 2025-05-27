@@ -1,0 +1,14 @@
+chromadb
+figures
+logs
+surveys
+surveys copy
+.env
+chromadb.zip
+domain_averages.tex
+evaluation_results.tex
+evaluation_results.csv
+similarity_calculations.log
+surveys.zip
+test.py
+scripts/__pycache__
