@@ -1,0 +1,17 @@
+# OpenAI API Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_API_BASE=https://api.openai.com/v1
+
+# Model Configuration
+DEFAULT_MODEL=gpt-4
+DEFAULT_TEMPERATURE=0.5
+DEFAULT_MAX_TOKENS=8192
+
+# Evaluation Settings
+EVALUATION_TIMEOUT=300
+EVALUATION_RETRY_ATTEMPTS=3
+EVALUATION_RETRY_DELAY=5
+
+# Logging
+LOG_LEVEL=INFO
+LOG_FILE=judge.log
