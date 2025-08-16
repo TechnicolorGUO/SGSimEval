@@ -1130,8 +1130,18 @@ def batch_calculate_similarity_scores(
         for topic_map in tasks[system]:
             for topic, rel_path in topic_map.items():
                 sys_path = os.path.join("surveys", rel_path)
+                # Check if the system path exists
+                if not os.path.exists(sys_path):
+                    print(f"[{topic}/{system}] System path does not exist: {sys_path}, skip.")
+                    continue
+                
                 # Find markdown files
-                md_files = [f for f in os.listdir(sys_path) if f.lower().endswith(".md")]
+                try:
+                    md_files = [f for f in os.listdir(sys_path) if f.lower().endswith(".md")]
+                except Exception as e:
+                    print(f"[{topic}/{system}] Error accessing directory {sys_path}: {e}, skip.")
+                    continue
+                
                 if not md_files:
                     print(f"[{topic}/{system}] No md found, skip.")
                     continue

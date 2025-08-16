@@ -1,0 +1,35 @@
+{
+    "outline_scores": [],
+    "content_scores": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+    ],
+    "reference_scores": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+    ],
+    "mean_outline_score": 0,
+    "mean_content_score": 1.0,
+    "mean_reference_score": 1.0
+}
