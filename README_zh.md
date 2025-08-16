@@ -1,4 +1,4 @@
-# SGSimEval - 综述生成相似性评估系统
+# SGSimEval: 自动综述生成系统的综合多维度相似性增强基准测试
 
 ### 概述
 
@@ -186,9 +186,53 @@ python main.py generate --mode evaluation --systems AutoSurvey SurveyForge --mod
 
 ### 安装
 
+#### 基础安装
+
 ```bash
 pip install -r requirements.txt
 ```
+
+#### PDF 处理设置（可选）
+
+如果你的输入数据包含 PDF 文件而不是 Markdown 文件，你需要设置 [MinerU](https://github.com/opendatalab/MinerU) 来进行 PDF 到 Markdown 的转换：
+
+1. **安装 MinerU**：
+   ```bash
+   # 使用 pip
+   pip install --upgrade pip
+   pip install uv
+   uv pip install -U "mineru[core]"
+   
+   # 或从源码安装
+   git clone https://github.com/opendatalab/MinerU.git
+   cd MinerU
+   uv pip install -e .[core]
+   ```
+
+2. **MinerU 系统要求**：
+   - **操作系统**：Linux / Windows / macOS
+   - **内存**：最低 16GB+，推荐 32GB+
+   - **磁盘空间**：20GB+，推荐 SSD
+   - **Python 版本**：3.10-3.13
+
+3. **转换 PDF 到 Markdown**：
+   ```bash
+   # 基础转换
+   mineru -p <输入pdf路径> -o <输出md路径>
+   
+   # 示例
+   mineru -p "surveys/cs/topic/paper.pdf" -o "surveys/cs/topic/paper.md"
+   ```
+
+4. **批量 PDF 处理**：
+   ```bash
+   # 处理目录中的所有 PDF
+   for pdf in surveys/cs/topic/*.pdf; do
+       mineru -p "$pdf" -o "${pdf%.pdf}.md"
+   done
+   ```
+
+**注意**：MinerU 是一个高质量的 PDF 到 Markdown 转换器，支持复杂布局、表格和数学公式。详细的安装和使用说明请参考 [MinerU 文档](https://github.com/opendatalab/MinerU)。
 
 ### 环境设置
 
