@@ -2479,7 +2479,16 @@ def convert_to_latex_similarity() -> None:
         # 计算similarity score
         pdfs_rows = df[df['system'] == 'pdfs'].set_index('model')
         
-        def compute_l2(row):
+        def compute_l2(row: pd.Series) -> float:
+            """
+            Compute L2 distance for similarity calculation.
+            
+            Args:
+                row (pd.Series): Row data containing system and model information
+                
+            Returns:
+                float: L2 distance value, 1.0 for PDFs, NaN if model not found
+            """
             if row['system'] == 'pdfs':
                 return 1.0
             model = row['model']

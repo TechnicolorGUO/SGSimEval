@@ -2,21 +2,37 @@ import json
 import re
 import csv
 import os
+from typing import List, Tuple
 
 
-def convert_round_to_square_brackets(text):
+def convert_round_to_square_brackets(text: str) -> str:
     """
-    将圆括号内的作者-年份引用替换为中括号，支持2018a等格式。
-    支持 (Smith et al., 2018a; Brown et al., 2017) 变成 [Smith et al., 2018a; Brown et al., 2017]
+    Convert round bracket author-year citations to square brackets.
+    
+    Supports formats like (Smith et al., 2018a; Brown et al., 2017) to 
+    [Smith et al., 2018a; Brown et al., 2017].
+    
+    Args:
+        text (str): Text containing citations to convert
+        
+    Returns:
+        str: Text with round bracket citations converted to square brackets
     """
     # 匹配 (Author et al., 2018a; AuthorB et al., 2017)
     pattern = re.compile(r'\(([A-Z][^()]+?, \d{4}[a-z]?([;，][^()]+?, \d{4}[a-z]?)*?)\)')
     return pattern.sub(r'[\1]', text)
 
-def acl_ref_to_key(ref):
+def acl_ref_to_key(ref: str) -> str:
     """
-    将 ACL 格式参考文献字符串转换为 [Author et al., 2018a] 格式
-    支持单作者、两作者、三及以上作者情况
+    Convert ACL format reference string to [Author et al., 2018a] format.
+    
+    Supports single author, two authors, and three or more authors cases.
+    
+    Args:
+        ref (str): ACL format reference string
+        
+    Returns:
+        str: Formatted citation key in square brackets
     """
     # 1. 找年份+可选字母后缀
     year_match = re.search(r'\b(20\d{2}[a-z]?|19\d{2}[a-z]?)\b', ref)
@@ -48,25 +64,44 @@ def acl_ref_to_key(ref):
         key = f'[Unknown, {year}]'
     return key
 
-def extract_citation_spans(sentence):
+def extract_citation_spans(sentence: str) -> List[str]:
     """
-    提取所有中括号内的引用片段
+    Extract all citation spans within square brackets from a sentence.
+    
+    Args:
+        sentence (str): Input sentence containing citations
+        
+    Returns:
+        list[str]: List of citation spans found in square brackets
     """
     return re.findall(r'\[[^\]]+\]', sentence)
 
-def is_numeric_citation(citation):
+def is_numeric_citation(citation: str) -> bool:
     """
-    判断是否为纯数字型引用（如[1,3,5-7]或[25]–[28]）
+    Check if citation is numeric format (e.g., [1,3,5-7] or [25]–[28]).
+    
+    Args:
+        citation (str): Citation string to check
+        
+    Returns:
+        bool: True if citation is numeric format, False otherwise
     """
     # 匹配 [1,3,5-7] 也匹配 [25]–[28]（区间可在 expand_citation 里处理）
     return re.match(r'^\[\d+([\s,\-–，]*\d+)*\]$', citation) or \
            re.match(r'^\[\d+\]\s*[\-–]\s*\[\d+\]$', citation)
 
-def is_author_year_citation(citation):
+def is_author_year_citation(citation: str) -> bool:
     """
-    判断是否为作者-年份型引用:
-    - 长形式 [Chen et al., 2023c; Xie et al., 2023]
-    - 简缩写形式 [Abé10], [AL18]
+    Check if citation is author-year format.
+    
+    Supports both long format [Chen et al., 2023c; Xie et al., 2023] 
+    and abbreviated format [Abé10], [AL18].
+    
+    Args:
+        citation (str): Citation string to check
+        
+    Returns:
+        bool: True if citation is author-year format, False otherwise
     """
     # 形式1: 作者+4位数字年份
     if re.search(r'[A-Za-z].*?\d{4}', citation):
@@ -78,7 +113,18 @@ def is_author_year_citation(citation):
     # 可以扩展其他变体
     return False
 
-def merge_all_numeric_citations(sentence):
+def merge_all_numeric_citations(sentence: str) -> str:
+    """
+    Merge all numeric citations in a sentence into a single comprehensive citation.
+    
+    Combines citations like [1], [3], [5-7] into a single consolidated format.
+    
+    Args:
+        sentence (str): Input sentence containing numeric citations
+        
+    Returns:
+        str: Sentence with consolidated numeric citations
+    """
     ids = []
 
     # 1. 提取所有区间 [num]–[num]
@@ -99,9 +145,18 @@ def merge_all_numeric_citations(sentence):
     else:
         return None
 
-def expand_citation(raw_citation):
+def expand_citation(raw_citation: str) -> List[int]:
     """
-    输入如 '[1,3,5-7]' 或 '[25]–[28]'，输出所有涉及的数字编号，去重排序
+    Expand citation format into individual reference IDs.
+    
+    Handles formats like [1,3,5-7] and [25]–[28] by extracting and expanding
+    all referenced numbers.
+    
+    Args:
+        raw_citation (str): Raw citation string to expand
+        
+    Returns:
+        list[int]: Sorted list of individual reference IDs
     """
     ref_ids = []
     # 1. 处理所有 [num] - [num]、[num]–[num]，如 [25]–[28]
@@ -131,8 +186,19 @@ def expand_citation(raw_citation):
                     continue
     return sorted(set(ref_ids))
 
-def get_continuous_refs(matches):
-    """从编号1开始，拼接所有能承接的区间，允许重复编号或比最大编号小的编号出现"""
+def get_continuous_refs(matches: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
+    """
+    Get continuous reference ranges starting from ID 1.
+    
+    Connects all consecutive ranges allowing for duplicate IDs or IDs smaller 
+    than the maximum to appear.
+    
+    Args:
+        matches (list[tuple[int, int]]): List of (start, end) reference ranges
+        
+    Returns:
+        list[tuple[int, int]]: List of continuous reference ranges
+    """
     refs = []
     next_idx = 1
     used = set()  # 已用过的区间下标
@@ -151,10 +217,18 @@ def get_continuous_refs(matches):
             break  # 没有能承接的区间，停止
     return refs
 
-def find_inline_references(para, initial_max=None):
+def find_inline_references(para: str, initial_max: int = None) -> List[Tuple[int, int]]:
     """
-    返回para中的所有引用区间，按出现顺序。
-    每次append后立即用end更新max，只保留end <= current_max + 1的区间。
+    Find all reference ranges in a paragraph in order of appearance.
+    
+    Updates max after each append, keeping only ranges where end <= current_max + 1.
+    
+    Args:
+        para (str): Paragraph text to search for references
+        initial_max (int, optional): Initial maximum reference number. Defaults to None.
+        
+    Returns:
+        list[tuple[int, int]]: List of (start, end) reference ranges
     """
     matches = []
     # 先找区间
@@ -178,9 +252,15 @@ def find_inline_references(para, initial_max=None):
                 current_max = end
     return filtered
 
-def split_markdown_content_and_refs(content):
+def split_markdown_content_and_refs(content: str) -> Tuple[str, str]:
     """
-    输入 Markdown 内容，返回 (正文内容, 参考文献块) 元组
+    Split markdown content into main content and references section.
+    
+    Args:
+        content (str): Input markdown content
+        
+    Returns:
+        tuple[str, str]: Tuple of (main_content, reference_block)
     """
     # 1. 最严格：# References
     ref_header = re.compile(r'^(#{1,6})\s*References\s*$', re.IGNORECASE | re.MULTILINE)
@@ -230,13 +310,17 @@ def split_markdown_content_and_refs(content):
                     ref_block = ""
     return main_content, ref_block
 
-def parse_markdown(content):
+def parse_markdown(content: str) -> Tuple[dict, List]:
     """
-    解析 Markdown 内容，提取完整句子和引用信息
-    :param content: 输入的 Markdown 内容
-    :return: 
-        results: dict，key为带引用的完整句子，value为该句子用到的参考文献内容列表
-        references: list，所有参考文献（顺序保存）
+    Parse markdown content to extract complete sentences and citation information.
+    
+    Args:
+        content (str): Input markdown content
+        
+    Returns:
+        tuple[dict, list]: Tuple of (results_dict, references_list) where:
+            - results_dict: Maps sentences with citations to referenced content lists
+            - references_list: All references in order
     """
     # 1. 抽refs
     main_content, ref_block = split_markdown_content_and_refs(content)
@@ -245,8 +329,22 @@ def parse_markdown(content):
     # 检测以[xxx]开头的条目（如 [1] 或 [Agashe et al., 2023]），否则用空行分割
 
     # 标准化数字型引用格式
-    def standardize_numeric_refs(block):
-        def repl(match):
+    def standardize_numeric_refs(block: str) -> str:
+        """
+        Standardize numeric reference formats in a reference block.
+        
+        Converts formats like "1. ", "1) ", "1 A." to "[1] " format.
+        
+        Args:
+            block (str): Reference block to standardize
+            
+        Returns:
+            str: Standardized reference block
+        """
+        def repl(match: re.Match) -> str:
+            """Replace match with standardized format."""
+            num = match.group(1)
+            return f'[{num}] '
             num = match.group(1)
             return f'[{num}] '
         # 支持 1.  1)  1 A.  1 Pleiss 等等
@@ -414,10 +512,16 @@ def parse_markdown(content):
                 results[para] = ref_list
     return results, references
 
-def extract_refs(input_file, output_folder):
+def extract_refs(input_file: str, output_folder: str) -> None:
     """
-    处理单个 Markdown 文件，将句子与引用对应关系保存到 CSV 和 JSON 文件，
-    并保存全部参考文献的列表（按编号顺序）。
+    Process a single markdown file and save sentence-citation mappings.
+    
+    Saves sentence-citation correspondence to CSV and JSON files, and stores
+    the complete list of references in order by number.
+    
+    Args:
+        input_file (str): Path to input markdown file
+        output_folder (str): Path to output folder for results
     """
     if not os.path.isfile(input_file):
         print(f"错误：输入文件 {input_file} 不存在，跳过该文件。")

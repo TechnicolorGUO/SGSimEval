@@ -240,7 +240,7 @@ def get_collection(topic: str, suffix: str, mode: str = "create") -> chromadb.Co
     except Exception as e:
         raise e
 
-def log_embedding_response(text: str, embedding: List[float], collection_name: str, doc_id: str):
+def log_embedding_response(text: str, embedding: List[float], collection_name: str, doc_id: str) -> None:
     """
     Log embedding response information.
     
@@ -458,7 +458,14 @@ def build_outline_tree_from_levels(outline_list: list[list[int | str]], md_path:
 
     # Find all paths from root to leaf nodes
     paths = []
-    def get_path_to_leaf(node, current_path=None):
+    def get_path_to_leaf(node: dict, current_path: list = None) -> None:
+        """
+        Recursively get paths to all leaf nodes in the outline tree.
+        
+        Args:
+            node (dict): Current node containing title and is_leaf properties
+            current_path (list, optional): Current path being built. Defaults to None.
+        """
         if current_path is None:
             current_path = []
         
@@ -775,7 +782,7 @@ def cal_similarity(md_path: str, topic: str, outline_top_n: int = 5, content_top
     
     return result
 
-def process_all_datasets():
+def process_all_datasets() -> None:
     """
     Process all markdown files in surveys/all_dataset and surveys/cs_dataset directories.
     For each markdown file, generate embeddings for outline, content, and references.
@@ -836,7 +843,7 @@ def process_all_datasets():
         if reference_embeddings:
             logging.info(f"Generated {len(reference_embeddings)} reference embeddings for {md_path}")
 
-def calculate_and_update_similarity_scores(model_name: str, md_path: str, ground_truth_md_path: str):
+def calculate_and_update_similarity_scores(model_name: str, md_path: str, ground_truth_md_path: str) -> None:
     """
     Calculate similarity scores and update the results JSON file.
     
@@ -958,7 +965,7 @@ def calculate_and_update_similarity_scores(model_name: str, md_path: str, ground
         logging.error(f"Error calculating similarity scores: {e}")
         return None
 
-def calculate_and_update_similarity_scores_new(model_name: str, md_path: str, ground_truth_md_path: str):
+def calculate_and_update_similarity_scores_new(model_name: str, md_path: str, ground_truth_md_path: str) -> None:
     """
     Calculate similarity scores and update the results JSON file with additional human-perfect metrics.
     
@@ -1264,7 +1271,7 @@ def normalize_score(score: float) -> float:
     """
     return score / 20.0
 
-def generate_evaluation_tex(system_list: List[str], model: str, output_path: str = "evaluation_results.tex"):
+def generate_evaluation_tex(system_list: List[str], model: str, output_path: str = "evaluation_results.tex") -> None:
     """
     Generate a tex table with evaluation results for all systems.
     
@@ -1464,7 +1471,7 @@ def generate_evaluation_tex(system_list: List[str], model: str, output_path: str
     
     print(f"Generated tex table at {output_path}")
 
-def generate_evaluation_csv(system_list: List[str], model: str, output_path: str = "evaluation_results.csv"):
+def generate_evaluation_csv(system_list: List[str], model: str, output_path: str = "evaluation_results.csv") -> None:
     """
     Generate a CSV table with evaluation results for all systems.
     
@@ -1661,7 +1668,7 @@ def generate_evaluation_csv(system_list: List[str], model: str, output_path: str
     
     print(f"Generated CSV table at {output_path}")
 
-def generate_radar_plots(system_list: List[str], metrics: List[str], system_name_map: dict, output_path: str = "radar_plots.pdf"):
+def generate_radar_plots(system_list: List[str], metrics: List[str], system_name_map: dict, output_path: str = "radar_plots.pdf") -> None:
     """
     Generate radar plots for SGEval, SGEval-Sim, and SGEval-Sim-HP results in a 1x3 layout.
     Combines Coverage, Structure, Relevance, Language, and Criticalness into a single Content metric.

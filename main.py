@@ -34,7 +34,13 @@ from cal_similarity import (
     generate_evaluation_tex, generate_evaluation_csv
 )
 
-def main():
+def main() -> None:
+    """
+    Main entry point for SGSimEval command-line interface.
+    
+    Parses command-line arguments and routes to appropriate handler functions
+    for evaluation, similarity calculation, aggregation, and other operations.
+    """
     parser = argparse.ArgumentParser(
         description="SGSimEval - Survey Generation Similarity Evaluation System",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -183,7 +189,7 @@ Examples:
         print(f"Error: {e}")
         sys.exit(1)
 
-def handle_evaluate(args):
+def handle_evaluate(args) -> None:
     """Handle single file evaluation"""
     print(f"Evaluating: {args.md_path}")
     print(f"Model: {args.model}")
@@ -199,7 +205,7 @@ def handle_evaluate(args):
     print("Evaluation completed!")
     print("Results:", results)
 
-def handle_batch_evaluate(args):
+def handle_batch_evaluate(args) -> None:
     """Handle batch evaluation"""
     if args.mode == 'category':
         if not args.categories:
@@ -237,7 +243,7 @@ def handle_batch_evaluate(args):
             num_workers=args.workers
         )
 
-def handle_similarity(args):
+def handle_similarity(args) -> None:
     """Handle similarity calculation"""
     if args.mode == 'single':
         if not args.md_path or not args.gt_path:
@@ -263,7 +269,7 @@ def handle_similarity(args):
             domains=args.domains
         )
 
-def handle_average(args):
+def handle_average(args) -> None:
     """Handle average score calculation"""
     if args.mode == 'category':
         if not args.categories:
@@ -290,7 +296,7 @@ def handle_average(args):
         print("Calculating averages for all categories")
         calculate_all_cats_average_scores()
 
-def handle_aggregate(args):
+def handle_aggregate(args) -> None:
     """Handle result aggregation"""
     if args.mode == 'category':
         if not args.categories:
@@ -314,7 +320,7 @@ def handle_aggregate(args):
             print("Converting to LaTeX format")
             convert_to_latex()
 
-def handle_clear(args):
+def handle_clear(args) -> None:
     """Handle clearing data"""
     if args.mode == 'scores':
         if args.categories and args.systems and args.model:
@@ -350,7 +356,7 @@ def handle_clear(args):
         clear_all_scores()
         clear_all_similarity()
 
-def handle_generate(args):
+def handle_generate(args) -> None:
     """Handle generation of evaluation tables"""
     print(f"Generating {args.mode} for systems: {args.systems}")
     print(f"Model: {args.model}")
@@ -367,7 +373,7 @@ def handle_generate(args):
         output_path = args.output or "evaluation_results.tex"
         generate_evaluation_tex(args.systems, args.model, output_path)
 
-def handle_supplement(args):
+def handle_supplement(args) -> None:
     """Handle supplementing missing scores"""
     print("Supplementing missing scores")
     
@@ -386,7 +392,7 @@ def handle_supplement(args):
         print("Supplementing all missing scores")
         supplement_missing_scores()
 
-def handle_calculate_all(args):
+def handle_calculate_all(args) -> None:
     """Handle comprehensive score calculation"""
     print("Starting comprehensive score calculation")
     
@@ -412,7 +418,7 @@ def handle_calculate_all(args):
         print(f"Error in comprehensive score calculation: {e}")
         print("Note: Some domain-specific functions may not be available")
 
-def handle_compare(args):
+def handle_compare(args) -> None:
     """Handle system comparison with PDFs"""
     if args.mode == 'single':
         if not args.topic_dir or not args.system:
