@@ -215,6 +215,15 @@ def robust_list_parse(response_str: str) -> list:
         ValueError: If parsing fails
     """
     def extract_most_likely_list(text: str) -> str:
+        """
+        Extract the most likely list content from text by finding bracketed content.
+        
+        Args:
+            text (str): Input text containing potential list
+            
+        Returns:
+            str: Extracted list content or original text if no brackets found
+        """
         start = text.find('[')
         end = text.rfind(']')
         if start != -1 and end != -1 and end > start:
